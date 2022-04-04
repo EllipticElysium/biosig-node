@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
-    "start": "nodemon index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -17,12 +17,14 @@
     "url": "https://github.com/EllipticElysium/biosig-node/issues"
   },
   "homepage": "https://github.com/EllipticElysium/biosig-node#readme",
-  "devDependencies": {
-    "@types/node": "^17.0.23",
-    "nodemon": "^2.0.15",
-    "ts-node": "^10.7.0"
-  },
   "dependencies": {
-    "typescript": "^4.6.3"
+    "aes-js": "^3.1.2",
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
+    "pbkdf2": "^3.1.2",
+    "pkcs7-padding": "^0.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
