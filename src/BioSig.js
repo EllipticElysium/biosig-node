@@ -12,7 +12,7 @@ export default class BioSig {
     console.log("b64Args - ", b64Args);
     const { success, response, raw } = await Api.call(
       "get",
-      "https://sandbox.verifyexpress.com/interface/standard/unumbox/ssoinbound.aspx",
+      `https://sandbox.verifyexpress.com/interface/standard/${process.env.partner}/ssoinbound.aspx`,
       null,
       { args: b64Args }
     );
