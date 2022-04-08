@@ -1,26 +1,9 @@
 import Api from './Api.js';
 import AES from './AES.js';
-import CryptoJS from 'crypto-js';
 
 export default class BioSig {
     static async connect() {
-        const config = {
-            secrets: {
-                pass: process.env.pass_phrase,
-                salt: process.env.salt,
-                vector: process.env.vector,
-                keySize: parseInt(process.env.keysize),
-            },
-
-            baseUrl: 'https://sandbox.verifyexpress.com/interface/standard/unumbox/',
-            sharedCode: 'UnUM.b0X!',
-            systemId: 'custom',
-            customerId: 'unumbox',
-            locale: 'en_US',
-            newWindow: false,
-        };
-
-        const args = {
+        const params = Api.paramBuilder({
             ts: new Date().toISOString(),
             sc: 'UnUM.b0X!',
             sid: 'iCollege',
@@ -30,21 +13,20 @@ export default class BioSig {
             em: 'me@example.com',
             fn: 'John',
             ln: 'Doe',
-        };
+        }).slice(1);
 
-        const params = Api.paramBuilder(args).slice(1);
+        const aes = new AES(process.env.pass_phrase, process.env.salt);
+        let base64EncryptedArgs = aes.encrypt(params, process.env.vector, parseInt(process.env.keysize));
 
-        const aes = new AES(config.secrets.pass, config.secrets.salt);
-
-        let encrb64 = aes.encrypt(params, config.secrets.vector, config.secrets.keySize);
-
-        const { raw } = await Api.call('get', `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`);
+        const { raw } = await Api.call(
+            'get',
+            'https://sandbox.verifyexpress.com/interface/standard/unumbox/SSOInbound.aspx',
+            null,
+            {
+                args: encodeURIComponent(base64EncryptedArgs),
+            }
+        );
 
         console.log(raw);
-
-        // console.log('Base64 Encoded Arguments: ' + encrb64);
-
-        // let url = `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`;
-        // console.log('SSO URL with URLEncoded Arguments: ' + url);
     }
 }

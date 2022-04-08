@@ -1,22 +1,23 @@
 import CryptoJS from 'crypto-js';
 export default class AES {
     constructor(pass, salt) {
-        this._key = this._createSecureKey(pass, salt, 2, 128 / 8);
+        this.key = this.createSecureKey(pass, salt, 2, 128 / 8);
     }
 
-    _createSecureKey(pass, salt, count, dklen) {
-        let t = CryptoJS.enc.Utf8.parse(pass + salt);
+    createSecureKey(pass, salt, count, dklen) {
+        let saltedPass = CryptoJS.enc.Utf8.parse(pass + salt);
         for (var i = 0; i < count; i++) {
-            t = CryptoJS.SHA1(t);
+            saltedPass = CryptoJS.SHA1(saltedPass);
         }
-        t = t.toString(CryptoJS.enc.Hex).slice(0, dklen * 2);
-        return CryptoJS.enc.Hex.parse(t);
+        const hexKey = saltedPass.toString(CryptoJS.enc.Hex).slice(0, dklen * 2);
+        const key = CryptoJS.enc.Hex.parse(hexKey);
+        return key;
     }
 
-    encrypt(s, vec, keySize) {
-        vec = CryptoJS.enc.Latin1.parse(vec);
-        const encryptedValue = CryptoJS.AES.encrypt(s, this._key, {
-            iv: vec,
+    encrypt(params, vector, keySize) {
+        vector = CryptoJS.enc.Latin1.parse(vector);
+        const encryptedValue = CryptoJS.AES.encrypt(params, this.key, {
+            iv: vector,
             keySize: keySize,
             mode: CryptoJS.mode.CBC,
             padding: CryptoJS.pad.Pkcs7,
