@@ -1,5 +1,5 @@
 import Api from './Api.js';
-import BioSigInterfaceHelper from './AES.js';
+import AES from './AES.js';
 import CryptoJS from 'crypto-js';
 
 export default class BioSig {
@@ -20,29 +20,25 @@ export default class BioSig {
             newWindow: false,
         };
 
-        let args = {
-            email: 'me@example.com',
-            firstName: 'John',
-            lastName: 'Doe',
+        const args = {
+            ts: new Date().toISOString(),
+            sc: 'UnUM.b0X!',
+            sid: 'iCollege',
+            cid: 'EduPlace',
+            lc: 'en-US',
+            nw: 'false',
+            em: 'me@example.com',
+            fn: 'John',
+            ln: 'Doe',
         };
 
-        const bsi = new BioSigInterfaceHelper(config.secrets.pass, config.secrets.salt);
-        let bsiargs = bsi.generateArgumentString(
-            config.sharedCode,
-            config.systemId,
-            config.customerId,
-            config.locale,
-            config.newWindow,
-            args.email,
-            args.firstName,
-            args.lastName
-        );
-        console.log('Args: ' + bsiargs);
+        const params = Api.paramBuilder(args).slice(1);
+        console.log(params);
 
-        let encr = bsi.encrypt(bsiargs, config.secrets.vector, config.secrets.keySize);
-        console.log('Encrypted Arguments: ' + encr);
+        const aes = new AES(config.secrets.pass, config.secrets.salt);
 
-        let encrb64 = encr.toString(CryptoJS.enc.Base64);
+        let encrb64 = aes.encrypt(params, config.secrets.vector, config.secrets.keySize);
+
         console.log('Base64 Encoded Arguments: ' + encrb64);
 
         let url = `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`;

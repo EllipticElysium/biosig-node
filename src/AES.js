@@ -13,23 +13,15 @@ export default class AES {
         return CryptoJS.enc.Hex.parse(t);
     }
 
-    generateArgumentString(sc, sid, cid, loc, nw, email, fn, ln, ts) {
-        ts = ts || new Date().toISOString();
-        // Build argument string for BioSig-ID schema
-        var bsiArgs = `ts=${ts}&sc=${sc}&sid=${sid}`;
-        bsiArgs += `&cid=${cid}&lc=${loc}&nw=${nw}`;
-        bsiArgs += `&em=${email}&fn=${fn}&ln=${ln}`;
-
-        return bsiArgs;
-    }
-
     encrypt(s, vec, keySize) {
         vec = CryptoJS.enc.Latin1.parse(vec);
-        return CryptoJS.AES.encrypt(s, this._key, {
+        const encryptedValue = CryptoJS.AES.encrypt(s, this._key, {
             iv: vec,
             keySize: keySize,
             mode: CryptoJS.mode.CBC,
             padding: CryptoJS.pad.Pkcs7,
         }).toString();
+        const b64EncrpyptedValue = encryptedValue.toString(CryptoJS.enc.Base64);
+        return b64EncrpyptedValue;
     }
 }
