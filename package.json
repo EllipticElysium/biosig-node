@@ -19,7 +19,7 @@
     "homepage": "https://github.com/EllipticElysium/biosig-node#readme",
     "dependencies": {
         "axios": "^0.26.1",
-        "crypto-js": "^4.1.1",
+        "crypto-js": "4.1.1",
         "dotenv": "^16.0.0"
     },
     "devDependencies": {

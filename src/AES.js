@@ -1,28 +1,35 @@
-import aesjs from 'aes-js';
-import pbkdf2 from 'pbkdf2';
-import pkcs7 from 'pkcs7-padding';
-
+import CryptoJS from 'crypto-js';
 export default class AES {
-    static encrypt(value) {
-        const key = pbkdf2.pbkdf2Sync(process.env.pass_phrase, process.env.salt, 1, 128 / 8, 'sha1');
-        const vector = aesjs.utils.utf8.toBytes(process.env.vector);
-        const byteValue = aesjs.utils.utf8.toBytes(value);
-        const paddedByteValue = pkcs7.pad(byteValue, 16);
-
-        const aesCbc = new aesjs.ModeOfOperation.cbc(key, vector, 1);
-        const encryptedBytes = aesCbc.encrypt(paddedByteValue);
-
-        console.log('key - ', key);
-        console.log('value - ', value);
-        console.log('vector - ', vector);
-        console.log('byteValue - ', byteValue);
-        console.log('paddedByteValue - ', paddedByteValue);
-        console.log('encryptedBytes - ', encryptedBytes);
-
-        return encryptedBytes;
+    constructor(pass, salt) {
+        this._key = this._createSecureKey(pass, salt, 2, 128 / 8);
     }
 
-    static decrpyt() {
-        //
+    _createSecureKey(pass, salt, count, dklen) {
+        let t = CryptoJS.enc.Utf8.parse(pass + salt);
+        for (var i = 0; i < count; i++) {
+            t = CryptoJS.SHA1(t);
+        }
+        t = t.toString(CryptoJS.enc.Hex).slice(0, dklen * 2);
+        return CryptoJS.enc.Hex.parse(t);
+    }
+
+    generateArgumentString(sc, sid, cid, loc, nw, email, fn, ln, ts) {
+        ts = ts || new Date().toISOString();
+        // Build argument string for BioSig-ID schema
+        var bsiArgs = `ts=${ts}&sc=${sc}&sid=${sid}`;
+        bsiArgs += `&cid=${cid}&lc=${loc}&nw=${nw}`;
+        bsiArgs += `&em=${email}&fn=${fn}&ln=${ln}`;
+
+        return bsiArgs;
+    }
+
+    encrypt(s, vec, keySize) {
+        vec = CryptoJS.enc.Latin1.parse(vec);
+        return CryptoJS.AES.encrypt(s, this._key, {
+            iv: vec,
+            keySize: keySize,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        }).toString();
     }
 }
