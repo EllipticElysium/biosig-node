@@ -1,34 +1,28 @@
-import aesjs from "aes-js";
-import pbkdf2 from "pbkdf2";
-import pkcs7 from "pkcs7-padding";
-
+import CryptoJS from 'crypto-js';
 export default class AES {
-  static encrypt(value) {
-    const key = pbkdf2.pbkdf2Sync(
-      process.env.pass_phrase,
-      process.env.salt,
-      1,
-      128 / 8,
-      "sha1"
-    );
-    const vector = aesjs.utils.utf8.toBytes(process.env.vector);
-    const byteValue = aesjs.utils.utf8.toBytes(value);
-    const paddedByteValue = pkcs7.pad(byteValue, 16);
+    constructor(pass, salt) {
+        this.key = this.createSecureKey(pass, salt, 2, 128 / 8);
+    }
 
-    const aesCbc = new aesjs.ModeOfOperation.cbc(key, vector, 1);
-    const encryptedBytes = aesCbc.encrypt(paddedByteValue);
+    createSecureKey(pass, salt, count, dklen) {
+        let saltedPass = CryptoJS.enc.Utf8.parse(pass + salt);
+        for (var i = 0; i < count; i++) {
+            saltedPass = CryptoJS.SHA1(saltedPass);
+        }
+        const hexKey = saltedPass.toString(CryptoJS.enc.Hex).slice(0, dklen * 2);
+        const key = CryptoJS.enc.Hex.parse(hexKey);
+        return key;
+    }
 
-    console.log("key - ", key);
-    console.log("value - ", value);
-    console.log("vector - ", vector);
-    console.log("byteValue - ", byteValue);
-    console.log("paddedByteValue - ", paddedByteValue);
-    console.log("encryptedBytes - ", encryptedBytes);
-
-    return encryptedBytes;
-  }
-
-  static decrpyt() {
-    //
-  }
+    encrypt(params, vector, keySize) {
+        vector = CryptoJS.enc.Latin1.parse(vector);
+        const encryptedValue = CryptoJS.AES.encrypt(params, this.key, {
+            iv: vector,
+            keySize: keySize,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        }).toString();
+        const b64EncrpyptedValue = encryptedValue.toString(CryptoJS.enc.Base64);
+        return b64EncrpyptedValue;
+    }
 }
