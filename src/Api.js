@@ -1,73 +1,73 @@
-import axios from "axios";
+import axios from 'axios';
 
 export default class Api {
-  static async call(method, path, payload, params) {
-    const queryParameters = this.paramBuilder(params),
-      callConfig = {
-        method: method.toUpperCase(),
-        url: path + queryParameters,
-        data: payload,
-        headers: {},
-      };
+    static async call(method, path, payload, params) {
+        const queryParameters = this.paramBuilder(params),
+            callConfig = {
+                method: method.toUpperCase(),
+                url: path + queryParameters,
+                data: payload,
+                headers: {},
+            };
 
-    console.log("url - ", callConfig.url);
+        console.log('url - ', callConfig.url);
 
-    return await this.sendRequest(callConfig);
-  }
+        return await this.sendRequest(callConfig);
+    }
 
-  static paramBuilder(params) {
-    let retVal = "";
-    if (params) {
-      retVal = "?";
-      for (const param in params) {
-        if (param && params[param] !== null && params[param] !== undefined) {
-          const query = `${param}=${params[param]}&`;
-          retVal = retVal + query;
-        } else {
-          continue;
+    static paramBuilder(params) {
+        let retVal = '';
+        if (params) {
+            retVal = '?';
+            for (const param in params) {
+                if (param && params[param] !== null && params[param] !== undefined) {
+                    const query = `${param}=${params[param]}&`;
+                    retVal = retVal + query;
+                } else {
+                    continue;
+                }
+            }
         }
-      }
-    }
-    return retVal.slice(0, -1);
-  }
-
-  static async sendRequest(callConfig) {
-    if (callConfig.data !== null) {
-      callConfig.headers["Content-Type"] = `application/json`;
+        return retVal.slice(0, -1);
     }
 
-    try {
-      const { data: response } = await axios(callConfig),
-        { message, error, success, data } = response;
+    static async sendRequest(callConfig) {
+        if (callConfig.data !== null) {
+            callConfig.headers['Content-Type'] = `application/json`;
+        }
 
-      return {
-        success,
-        message,
-        response: data || null,
-        error: error || null,
-        raw: response,
-      };
-    } catch (e) {
-      if (e.response) {
-        const { data: response } = e.response,
-          { message, success } = response;
+        try {
+            const { data: response } = await axios(callConfig),
+                { message, error, success, data } = response;
 
-        return {
-          success,
-          message,
-          response: message ?? "",
-          error: message ?? "",
-        };
-      } else {
-        const errorMessage = {
-          success: false,
-          message: "Couldn't connect",
-          response: "",
-          error: "",
-        };
+            return {
+                success,
+                message,
+                response: data || null,
+                error: error || null,
+                raw: response,
+            };
+        } catch (e) {
+            if (e.response) {
+                const { data: response } = e.response,
+                    { message, success } = response;
 
-        return errorMessage;
-      }
+                return {
+                    success,
+                    message,
+                    response: message ?? '',
+                    error: message ?? '',
+                };
+            } else {
+                const errorMessage = {
+                    success: false,
+                    message: "Couldn't connect",
+                    response: '',
+                    error: '',
+                };
+
+                return errorMessage;
+            }
+        }
     }
-  }
 }
