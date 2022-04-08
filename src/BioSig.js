@@ -33,15 +33,18 @@ export default class BioSig {
         };
 
         const params = Api.paramBuilder(args).slice(1);
-        console.log(params);
 
         const aes = new AES(config.secrets.pass, config.secrets.salt);
 
         let encrb64 = aes.encrypt(params, config.secrets.vector, config.secrets.keySize);
 
-        console.log('Base64 Encoded Arguments: ' + encrb64);
+        const { raw } = await Api.call('get', `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`);
 
-        let url = `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`;
-        console.log('SSO URL with URLEncoded Arguments: ' + url);
+        console.log(raw);
+
+        // console.log('Base64 Encoded Arguments: ' + encrb64);
+
+        // let url = `${config.baseUrl}SSOInbound.aspx?args=${encodeURIComponent(encrb64)}`;
+        // console.log('SSO URL with URLEncoded Arguments: ' + url);
     }
 }

@@ -10,8 +10,6 @@ export default class Api {
                 headers: {},
             };
 
-        console.log('url - ', callConfig.url);
-
         return await this.sendRequest(callConfig);
     }
 
