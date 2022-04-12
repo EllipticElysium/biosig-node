@@ -1,5 +1,6 @@
 import Api from './Api.js';
 import AES from './AES.js';
+import { XMLParser } from 'fast-xml-parser';
 
 export default class BioSig {
     static async connect() {
@@ -27,10 +28,23 @@ export default class BioSig {
             }
         );
 
+        const { success, redirect } = this.parseXmlResponse(raw);
+        console.log({ success, redirect });
+
         const decryptedArgs = aes.decrpyt(base64EncryptedArgs, process.env.vector, parseInt(process.env.keysize));
         const returnedValues = this.getreturnedValues(decryptedArgs);
 
-        console.log({ raw, returnedValues });
+        console.log({ returnedValues });
+    }
+
+    static parseXmlResponse(xml) {
+        const { STATUS, CODE, MESSAGE, REDIRECT } = new XMLParser().parse(xml).SSO_RESPONSE;
+        return {
+            success: STATUS === 'Success',
+            code: CODE,
+            message: MESSAGE,
+            redirect: REDIRECT,
+        };
     }
 
     static getreturnedValues(decryptedArgs) {
