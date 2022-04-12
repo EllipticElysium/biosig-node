@@ -16,7 +16,7 @@ export default class BioSig {
         }).slice(1);
 
         const aes = new AES(process.env.pass_phrase, process.env.salt);
-        let base64EncryptedArgs = aes.encrypt(params, process.env.vector, parseInt(process.env.keysize));
+        const base64EncryptedArgs = aes.encrypt(params, process.env.vector, parseInt(process.env.keysize));
 
         const { raw } = await Api.call(
             'get',
@@ -27,6 +27,16 @@ export default class BioSig {
             }
         );
 
-        console.log(raw);
+        const decryptedArgs = aes.decrpyt(base64EncryptedArgs, process.env.vector, parseInt(process.env.keysize));
+        const returnedValues = this.getreturnedValues(decryptedArgs);
+
+        console.log({ raw, returnedValues });
+    }
+
+    static getreturnedValues(decryptedArgs) {
+        return decryptedArgs.split('&').reduce((args, param) => {
+            const [key, value] = param.split('=');
+            return { ...args, [key]: value };
+        }, {});
     }
 }
