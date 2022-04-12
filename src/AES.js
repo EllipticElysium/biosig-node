@@ -25,4 +25,14 @@ export default class AES {
         const b64EncrpyptedValue = encryptedValue.toString(CryptoJS.enc.Base64);
         return b64EncrpyptedValue;
     }
+
+    decrpyt(value, vector, keySize) {
+        vector = CryptoJS.enc.Latin1.parse(vector);
+        return CryptoJS.AES.decrypt(value, this.key, {
+            iv: vector,
+            keySize: keySize,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        }).toString(CryptoJS.enc.Utf8);
+    }
 }
